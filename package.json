@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "frappe-react-sdk": "^1.0.16"
+  }
+}
