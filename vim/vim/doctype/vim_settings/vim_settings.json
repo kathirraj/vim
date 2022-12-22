@@ -205,11 +205,9 @@
    "fieldname": "gst_accounts",
    "fieldtype": "Table",
    "label": "Accounts",
-   "options": "GST Account",
-   "reqd": 1
+   "options": "VIM Account"
   },
   {
-   "depends_on": "eval: ic.is_api_enabled(doc)",
    "fieldname": "credentials_tab",
    "fieldtype": "Tab Break",
    "label": "Credentials"
@@ -218,7 +216,7 @@
    "fieldname": "credentials",
    "fieldtype": "Table",
    "label": "Credentials",
-   "options": "GST Credential"
+   "options": "VIM Credential"
   },
   {
    "fieldname": "api_secret",
@@ -230,7 +228,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-12-22 14:51:04.746092",
+ "modified": "2022-12-22 16:04:53.388125",
  "modified_by": "Administrator",
  "module": "vim",
  "name": "VIM Settings",
