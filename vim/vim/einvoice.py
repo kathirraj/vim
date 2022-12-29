@@ -1,6 +1,10 @@
 import requests
 import json
 import frappe
+import qrcode
+from PIL import Image
+import base64
+from io import BytesIO
 @frappe.whitelist()
 def generate_einvoice(docname, throw=True):
 	sales_obj = frappe.get_doc('Sales Invoice', 'SRET-22-00003')
