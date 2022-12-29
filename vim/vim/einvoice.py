@@ -133,6 +133,7 @@ def generate_einvoice(docname, throw=True):
 	irn = response.json()
 	print(irn['Irn'])
 	print(sales_obj.customer)
+	print(sales_obj.name)
 	sales_obj.test = "hello"
 	sales_obj.save()
 	frappe.msgprint(
