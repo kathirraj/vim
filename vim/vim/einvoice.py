@@ -130,14 +130,15 @@ def generate_einvoice(docname, throw=True):
 	}
 	response = requests.request("POST", url, headers=headers, data=payload)
 	print(response.text, payload)
-	irn = response.json()
-	print(irn['Irn'])
+	irns = response.json()
+	print(irns['Irn'])
 	print(sales_obj.customer)
-	sales_obj.test = "hello"
-	sales_obj.save()
+	sales_obj.irn = irns['Irn']
+	sales_obj.save(ignore_permissions=True)
+	frappe.db.commit()
 	frappe.msgprint(
-	  	msg='E Invoice Generated '+ str(response.status_code)+str(sales_obj.customer),
-	  	title='Error',
-	  	raise_exception=FileNotFoundError
+	msg='E Invoice Generated '+ str(response.status_code)+str(sales_obj.irn),
+	title='Error',
+	raise_exception=FileNotFoundError
 
 	)
