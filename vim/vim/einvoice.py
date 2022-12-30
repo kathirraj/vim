@@ -141,7 +141,7 @@ def generate_einvoice(docname, throw=True):
 	sales_obj.qrcode=irns['SignedQRCode']
 	sales_obj.save(ignore_permissions=True)
 	frappe.db.commit()
-
+@frappe.whitelist()
 def get_qrcode(input_str):
 	qr = qrcode.make(input_str)
 	temp = BytesIO()

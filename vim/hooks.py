@@ -190,6 +190,6 @@ app_license = "MIT"
 # Methods accessible to print template
 jenv = {
     "methods": [
-    'get_qrcode:acme.jinja_filters.get_qrcode'
+    'get_qrcode:"vim.vim.einvoice.get_qrcode'
     ]
 }
