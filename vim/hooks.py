@@ -188,8 +188,7 @@ app_license = "MIT"
 # Jinja Filters
 # ---------------
 # Methods accessible to print template
-jenv = {
-    "methods": [
-    'get_qrcode:"vim.vim.einvoice.get_qrcode'
-    ]
-}
+
+# Jinja Filters
+# ---------------
+# Methods accessible to print template
