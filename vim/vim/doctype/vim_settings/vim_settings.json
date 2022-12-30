@@ -34,7 +34,8 @@
   "gst_accounts",
   "credentials_tab",
   "credentials",
-  "api_secret"
+  "api_secret",
+  "remaining_count"
  ],
  "fields": [
   {
@@ -223,12 +224,20 @@
    "fieldtype": "Password",
    "hidden": 1,
    "label": "API Secret"
+  },
+  {
+   "fieldname": "remaining_count",
+   "fieldtype": "Data",
+   "label": "Remaining count",
+   "print_hide": 1,
+   "read_only": 1,
+   "report_hide": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-12-22 16:04:53.388125",
+ "modified": "2022-12-30 15:29:57.756712",
  "modified_by": "Administrator",
  "module": "vim",
  "name": "VIM Settings",
