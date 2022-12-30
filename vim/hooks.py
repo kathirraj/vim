@@ -185,3 +185,11 @@ app_license = "MIT"
 # auth_hooks = [
 #	"vim.auth.validate"
 # ]
+# Jinja Filters
+# ---------------
+# Methods accessible to print template
+jenv = {
+    "methods": [
+    'get_qrcode:acme.jinja_filters.get_qrcode'
+    ]
+}

@@ -7,7 +7,7 @@ import base64
 from io import BytesIO
 @frappe.whitelist()
 def generate_einvoice(docname, throw=True):
-	sales_obj = frappe.get_doc('Sales Invoice', 'SRET-22-00003')
+	sales_obj = frappe.get_doc('Sales Invoice', docname)
 	url = "https://einvoice2.mazeworkssolutions.com/maze_eserver/api/einvoicegenerate"    
 	payload = json.dumps({
       "Invoice": {
@@ -138,11 +138,14 @@ def generate_einvoice(docname, throw=True):
 	print(irns['Irn'])
 	print(sales_obj.customer)
 	sales_obj.irn = irns['Irn']
+	sales_obj.qrcode=irns['SignedQRCode']
 	sales_obj.save(ignore_permissions=True)
 	frappe.db.commit()
-	frappe.msgprint(
-	msg='E Invoice Generated '+ str(response.status_code)+str(sales_obj.irn),
-	title='Error',
-	raise_exception=FileNotFoundError
 
-	)
+def get_qrcode(input_str):
+	qr = qrcode.make(input_str)
+	temp = BytesIO()
+	qr.save(temp, "PNG")
+	temp.seek(0)
+	b64 = base64.b64encode(temp.read())
+	return "data:image/png;base64,{0}".format(b64.decode("utf-8"))
