@@ -177,33 +177,32 @@ def get_qrcode(input_str):
   temp.seek(0)
   b64 = base64.b64encode(temp.read())
   return "data:image/png;base64,{0}".format(b64.decode("utf-8"))
+
 @frappe.whitelist()
-def cancel_e_invoice(docname, values):
+def cancel_e_invoice(docname,values,throw=True):
   sales_obj = frappe.get_doc('Sales Invoice', docname)
-    # doc = load_doc("Sales Invoice", docname, "cancel")
-  print(docname)
+  #   # doc = load_doc("Sales Invoice", docname, "cancel")
+  # print(docname)
   values = frappe.parse_json(values)
   validate_if_e_invoice_can_be_cancelled(sales_obj)
-
   if sales_obj.get("ewaybill"):
-        _cancel_e_waybill(sales_obj, values)
-
+    _cancel_e_waybill(sales_obj, values)
   data = {
-        "Irn": sales_obj.irn,
-        "Cnlrsn": [values.reason],
-        "Cnlrem": values.remark if values.remark else values.reason,
-    }
-
+  "Irn": sales_obj.irn,
+	"Cnlrsn": [values.reason],
+	"Cnlrem": values.remark if values.remark else values.reason,
+  }
+  sales_obj.einvoice_status= "Generated"
+  sales_obj.save(ignore_permissions=True)
+  frappe.db.commit()
   result = EInvoiceAPI(sales_obj).cancel_irn(data)
   doc.db_set({"einvoice_status": "Cancelled", "irn": ""})
 
-  def validate_if_e_invoice_can_be_cancelled(sales_obj):
+def validate_if_e_invoice_can_be_cancelled(sales_obj):
     if not sales_obj.irn:
         frappe.throw(("IRN not found"), title=("Error Cancelling e-Invoice"))
-
     # this works because we do run_onload in load_doc above
     acknowledged_on =  sales_obj.ackdt
-
     if (
         not acknowledged_on
         or add_to_date(get_datetime(acknowledged_on), days=1, as_datetime=True)
@@ -212,4 +211,5 @@ def cancel_e_invoice(docname, values):
         frappe.throw(
             ("e-Invoice can only be cancelled upto 24 hours after it is generated")
         )
-
+    else :
+	    print("e-Invoice can only be cancelled")
