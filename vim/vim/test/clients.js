@@ -27,11 +27,12 @@ frappe.ui.form.on('Sales Invoice', {
 	
     function is_irn_cancellable(frm) {
      const e_invoice_info = frm.doc.__onload && frm.doc.__onload.irn;
+     const date = frappe.datetime.now_datetime();
      return (
         e_invoice_info &&
         frappe.datetime
-            .convert_to_user_tz(e_invoice_info.acknowledged_on, false)
-            .add("days", 1)
+            .convert_to_user_tz(e_invoice_info.ackdt, true)
+            .add("days", 2)
             .diff() > 0
         );
     }
@@ -82,7 +83,7 @@ frappe.ui.form.on('Sales Invoice', {
             : __("Cancel IRN"),
         primary_action(values) {
             frappe.call({
-                method: "india_compliance.gst_india.utils.e_invoice.cancel_e_invoice",
+                method: "vim.vim.einvoice.cancel_e_invoice",
                 args: {
                     docname: frm.doc.name,
                     values: values,
