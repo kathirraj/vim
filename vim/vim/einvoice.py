@@ -1,15 +1,11 @@
-from pydoc import doc
 import requests
 import json
-from apps.frappe.frappe.utils.data import add_to_date, get_datetime
-from apps.india_compliance.india_compliance.gst_india.api_classes.e_invoice import EInvoiceAPI
-from apps.india_compliance.india_compliance.gst_india.utils.e_waybill import _cancel_e_waybill
 import frappe
 import qrcode
 from PIL import Image
 import base64
 from io import BytesIO
-
+from pydoc import doc
 @frappe.whitelist()
 def generate_einvoice(docname, throw=True):
   sales_obj = frappe.get_doc('Sales Invoice', docname)
@@ -39,13 +35,13 @@ def generate_einvoice(docname, throw=True):
         "Em": sales_obj.contact_email
       },
       "BuyerDtls": {
-        "Gstin": sales_obj.billing_address_gstin,
+        "Gstin": "01AAACP4526D1Z4",
         "LglNm": "HYUNDAI MOTORS INDIA LIMITED",
-        "Pos": "36",
+        "Pos": "01",
         "Addr1": sales_obj.customer_address,
         "Loc": "HVF1",
-        "Pin": 505001,
-        "Stcd": "36",
+        "Pin": 180001,
+        "Stcd": "01",
         "Ph": sales_obj.contact_mobile,
         "Em": sales_obj.contact_email
       },
@@ -64,9 +60,9 @@ def generate_einvoice(docname, throw=True):
       "PreTaxVal": 0,
       "AssAmt": 30.6,
       "GstRt": 28,
-      "IgstAmt": 8.58,
-      "CgstAmt": 0,
-      "SgstAmt": 0,
+      "IgstAmt": 0,
+      "CgstAmt": 4.29,
+      "SgstAmt": 4.29,
       "CesRt": 0,
       "CesAmt": 0,
       "CesNonAdvlAmt": 0,
@@ -93,9 +89,9 @@ def generate_einvoice(docname, throw=True):
       "PreTaxVal": 0,
       "AssAmt": 22.8,
       "GstRt": 28,
-      "IgstAmt": 6.38,
-      "CgstAmt": 0,
-      "SgstAmt": 0,
+      "IgstAmt": 0,
+      "CgstAmt": 3.19,
+      "SgstAmt": 3.19,
       "CesRt": 0,
       "CesAmt": 0,
       "CesNonAdvlAmt": 0,
@@ -111,9 +107,9 @@ def generate_einvoice(docname, throw=True):
       ],
       "ValDtls": {
         "AssVal": 53.4,
-        "CgstVal": 0,
-        "SgstVal": 0,
-        "IgstVal": 14.96,
+        "CgstVal": 7.48,
+        "SgstVal": 7.48,
+        "IgstVal": 0,
         "CesVal": 0,
         "StCesVal": 0,
         "Discount": 0,
@@ -124,7 +120,7 @@ def generate_einvoice(docname, throw=True):
       "EwbDtls": {
         "Transid": "33AVGPP1380B2ZY",
         "Transname": "SS TRANSPORT",
-        "Distance": 150,
+        "Distance": 90,
         "Transdocno": "001",
         "TransdocDt": "26/11/2022",
         "Vehno": "TN21BZ0253",
@@ -140,7 +136,7 @@ def generate_einvoice(docname, throw=True):
   response = requests.request("POST", url, headers=headers, data=payload)
   print(response.text, payload)
   irns = response.json()
-  # print(irns['Irn'])
+  print(irns['Irn'])
   print(sales_obj.customer)
   doc=frappe.get_doc('VIM Settings')
   sales_obj.irn = irns['Irn']
