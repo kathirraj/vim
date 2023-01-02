@@ -1,8 +1,8 @@
 import requests
 import json
+from apps.frappe.frappe.utils.data import add_to_date, get_datetime
+from apps.india_compliance.india_compliance.gst_india.utils.e_waybill import PERMITTED_DOCTYPES
 import frappe
-from frappe.utils.data import add_to_date, get_datetime
-from india_compliance.gst_india.utils.e_waybill import PERMITTED_DOCTYPES
 
 
 @frappe.whitelist()
