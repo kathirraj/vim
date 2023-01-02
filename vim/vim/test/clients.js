@@ -5,7 +5,11 @@ frappe.ui.form.on('Sales Invoice', {
 		
 		if (cur_frm.doc.irn && cur_frm.doc.name){
 			frm.add_custom_button(__('Generate E-Way Bill'), function(){
-        frappe.msgprint(frm.doc.email);
+       frappe.call({
+                        method: "vim.vim.ewaybill.generate_e_waybill",
+                        args: { docname: frm.doc.name },
+                        callback: () => frm.refresh(),
+                    });
     }, __("E-invoice"));
 		
 		} else {
