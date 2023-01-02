@@ -133,7 +133,7 @@ def generate_einvoice(docname, throw=True):
       "EwbDtls": {
         "Transid": "33AVGPP1380B2ZY",
         "Transname": "SS TRANSPORT",
-        "Distance": 10,
+        "Distance": 150,
         "Transdocno": "001",
         "TransdocDt": "26/11/2022",
         "Vehno": "TN21BZ0253",

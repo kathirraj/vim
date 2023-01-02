@@ -1,3 +1,5 @@
+import requests
+import json
 import frappe
 from frappe.utils.data import add_to_date, get_datetime
 from india_compliance.gst_india.utils.e_waybill import PERMITTED_DOCTYPES
@@ -14,11 +16,32 @@ def generate_e_waybill(*, doctype, docname, values=None):
 
 def _generate_e_waybill(sales_obj , throw=True):
     try:
-        # Via e-Invoice API if not Return or Debit Note
+          # Via e-Invoice API if not Return or Debit Note
         # Handles following error when generating e-Waybill using IRN:
         # 4010: E-way Bill cannot generated for Debit Note, Credit Note and Services
         with_irn = sales_obj .get("irn") and not (sales_obj .is_return or sales_obj .is_debit_note)
         data = EWaybillData(sales_obj ).get_data(with_irn=with_irn)
+        url = "http://einvoice2.mazeworkssolutions.com/maze_eserver/public/api/ewaybillgenerate"
+        payload = json.dumps({
+             "Invoice": {
+             "Irn": "50793c7eb917c5fef4827c76f38d795adf816ad2f47a0a3968a24084728d2f24",
+             "TransId": "29DPZPS4403C1ZF",
+             "TransMode": "1",
+             "TrnDocNO": "12/22",
+             "TrnDocDt": "06/02/2020",
+             "VehNo": "KA01AB1234",
+             "Distance": 50,
+             "VehType": "R",
+             "TransName": "ree"
+             }
+        })
+        headers = {
+             'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMTg2MWM4YzRmNjE2MTUxNmQxZjdiYjQ0NmQzM2FmODA1YWMwMjA0MWJhZDY1NmU5NjBiNzEwZjllYjE0Y2U3MWVlNDM3YWZjMTBkMTBjMGIiLCJpYXQiOjE2NjkzODc0OTUuMTkyNDA2LCJuYmYiOjE2NjkzODc0OTUuMTkyNDA4LCJleHAiOjE3MDA5MjM0OTUuMTg0OTgsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.LBuPsvSwCqARlaaMgsLiOuFMZ-9YTMbOFZTHpDVxh8UBRihYgh3ClIRYglTKBp6MXYEb-1gKSeqU8V_sAnAFf5kCdIu07vVZgRO20Sk0SfnNlib843A7HfySem2vCr_ncGmEr5V4h8j7hE9sRyRAmei8ri1j5RB95B2kF9UG0bqa3lcxcVT9UMxBGHIKm2Vkaod_wwiXlzNyKlaa31yAyt9W7zWzsiFin5b892TQwh8wPYh5x6_fMLy--7S4HoJB8oYr3VWoJfcBnifO409NjQ_5PDrbV1BQ37Wj03Z-VNDueH0JmYrZ7zeu0C2vc9HSrysHpfaD9VSADfhROehN0o0sKJR7l5mXs-Sv3CobeRkLHZev1hu9fFR8fYXGmRy6hbBcbBox8bPbBtaLSHuv_ug8OHunWO9VFpGRdJaM9uOYQ5yqxZFyOpXQYr4w0oV5gOn0HGvjdT9bBLMb0i6OJUO9iMqFJ8peJY23B3TL0uRUkK8WGviwzoNlLFSk165M5YQ-PuVcm0BunoZ5sjkWp1tFLGDkXgB9BxU5dsr3B51VtxxFmd15Kcmv8DRfN9h0kvz0FVHO4KVqRI1OHtDudnE7mWQWaGj6YYPk7RO5uecN3zb2njcqEPhxnw_6CL-fqZGToZ-KRnKxNcoHjql2l2wSQSQEI_DyusrhyvOFcYI',
+             'Content-Type': 'application/json'
+              }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text, payload)
+        
 
     except frappe.ValidationError as e:
         if throw:
