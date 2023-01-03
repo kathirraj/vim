@@ -40,7 +40,6 @@ frappe.ui.form.on('Sales Invoice', {
             .diff() > 0
         );
     }
-
     function show_cancel_e_invoice_dialog(frm, callback) {
         const d = new frappe.ui.Dialog({
         title: frm.doc.ewaybill

@@ -143,8 +143,12 @@ def generate_einvoice(docname, throw=True):
   sales_obj.qrcode=irns['SignedQRCode']
   sales_obj.ackno=irns['AckNo']
   sales_obj.ackdt=irns['AckDt']
+  sales_obj.ewaybill = irns['EwbNo']
+  sales_obj.ewbdt = irns['EwbDt']
+  sales_obj.ewbvalidtill= irns['EwbValidTill']
   sales_obj.einvoice_status= "Generated"
-  doc.remaining_count=irns['remainingcount']
+  doc.remaining_count=irns['remainingcount']    
+  
   print(doc.remaining_count)
   sales_obj.save(ignore_permissions=True)
   doc.save(ignore_permissions=True)
