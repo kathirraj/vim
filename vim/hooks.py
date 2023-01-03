@@ -194,6 +194,7 @@ app_license = "MIT"
 # Methods accessible to print template
 jinja = {
     "methods": [
-    'vim.vim.einvoice.get_qrcode'
+    'vim.vim.einvoice.get_qrcode',
+    'vim.vim.einvoice.get_hml_qrcode'
     ]
 }

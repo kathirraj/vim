@@ -160,6 +160,128 @@ def generate_einvoice(docname, throw=True):
     raise_exception=FileNotFoundError
 
     ) 
+  
+  #######################################################################################
+### e-invoice Data Generation #########################################################
+#######################################################################################
+class EinvoiceData():
+  sales_obj = None
+  def __init__(self, sales_obj):
+      self.sales_obj = sales_obj
+      
+  def get_json(self):
+    doctype = self._Doc_Dtls()
+    seller_dtls = self._Seller_Dtls()
+    buyer_dtls = self._Buyer_Dtls()
+    item_dtls = self._Item_Dtls()
+    Val_Dtls = self._Val_Dtls()
+    Ewb_Dtls =self._Ewb_Dtls()
+    print(doctype)
+    print(seller_dtls)
+    print(buyer_dtls)
+    print(item_dtls)
+    print(Val_Dtls)
+    print(Ewb_Dtls)
+    return doctype,seller_dtls,buyer_dtls,item_dtls,Val_Dtls,Ewb_Dtls
+  def _Doc_Dtls(self):
+     doctype = self.sales_obj.get("DocDtls", {})
+     return{
+       "Typ": "INV",
+        "No": self.sales_obj.name,
+        "Dt": self.sales_obj.posting_date
+     }
+    
+  def _Seller_Dtls(self):
+    address = self.sales_obj.get("SellerDtls", {})
+    company_gstin =self.sales_obj.company_gstin
+    company_dtls=self.sales_obj.company_address_display.split("<br>")
+    return {
+        "Gstin": company_gstin,
+        "LglNm": self.sales_obj.company,
+        "Pos": company_gstin[:2],
+        "Addr1":self.sales_obj.company_address_display,
+        "Loc": company_dtls[3],
+        "Pin": company_dtls[4],
+        "Stcd": company_gstin[:2],
+        "Ph": self.sales_obj.contact_mobile,
+        "Em": self.sales_obj.contact_email,
+    }
+  def _Buyer_Dtls(self):
+    buyer_address = self.sales_obj.get("BuyerDtls", {})
+    buyer_gstin =self.sales_obj.billing_address_gstin
+    buyer_dtls=self.sales_obj.address_display.split("<br>")
+    return {
+        "Gstin": buyer_gstin,
+        "LglNm": self.sales_obj.customer,
+        "Pos": buyer_gstin[:2],
+        "Addr1":self.sales_obj.address_display,
+        "Loc": buyer_dtls[3],
+        "Pin": buyer_dtls[4],
+        "Stcd": buyer_gstin[:2],
+        "Ph": self.sales_obj.contact_mobile,
+        "Em": self.sales_obj.contact_email,
+    }
+  def _Item_Dtls(self):
+    ItemList =self.sales_obj.get("ItemList",{})
+    items=[]
+    for item in self.sales_obj.items:
+        invoice_item = {}
+    invoice_item['SlNo'] = item.item_code
+    invoice_item['PrdDesc'] = item.item_name
+    invoice_item['IsServc'] = item.description
+    invoice_item['HsnCd'] = item.item_code
+    invoice_item['Qty'] = item.item_name
+    invoice_item['FreeQty'] = item.description
+    invoice_item['Unit'] = item.item_code
+    invoice_item['UnitPrice'] = item.item_name
+    invoice_item['TotAmt'] = item.description
+    invoice_item['Discount'] = item.item_code
+    invoice_item['PreTaxVal'] = item.item_name
+    invoice_item['AssAmt'] = item.description
+    invoice_item['GstRt'] = item.description
+    invoice_item['IgstAmt'] = item.item_code
+    invoice_item['CgstAmt'] = item.item_name
+    invoice_item['SgstAmt'] = item.description
+    invoice_item['CesRt'] = item.item_code
+    invoice_item['CesAmt'] = item.item_name
+    invoice_item['StateCesRt'] = item.description
+    invoice_item['StateCesAmt'] = item.item_code
+    invoice_item['StateCesNonAdvlAmt'] = item.item_name
+    invoice_item['OthChrg'] = item.description
+    invoice_item['TotItemVal'] = item.item_code
+    invoice_item['OrgCntry'] = item.item_name
+    invoice_item['PrdSlNo'] = item.description
+    items.append(invoice_item)
+    return items
+  def _Val_Dtls(self):
+   ValDtls = self.sales_obj.get("ValDtls",{})
+   taxes=[]
+   for tax in self.sales_obj.taxes:
+    invoice_tax = {}
+    invoice_tax['AssVal'] = tax.tax_amount
+    invoice_tax['CgstVal'] = tax.tax_amount
+    invoice_tax['SgstVal'] = tax.tax_amount
+    invoice_tax['IgstVal'] = tax.tax_amount
+    invoice_tax['CesVal'] = tax.tax_amount
+    invoice_tax['StCesVal'] = tax.tax_amount
+    invoice_tax['Discount'] = tax.tax_amount
+    invoice_tax['OthChrg'] = tax.tax_amount
+    invoice_tax['RndOffAmt'] = tax.tax_amount
+    invoice_tax['TotInvVal'] = tax.tax_amount
+    taxes.append(invoice_tax)
+    return {ValDtls:taxes}
+  def _Ewb_Dtls(self):
+    EwbDtls= self.sales_obj.get("EwbDtls",{})
+    return{
+      "Transid": "33AVGPP1380B2ZY",
+        "Transname": "SS TRANSPORT",
+        "Distance": 90,
+        "Transdocno": "001",
+        "TransdocDt": "26/11/2022",
+        "Vehno": "TN21BZ0253",
+        "Vehtype": "R",
+        "TransMode": "1"
+    }
 @frappe.whitelist()
 def get_qrcode(input_str):
   qr = qrcode.make(input_str)
