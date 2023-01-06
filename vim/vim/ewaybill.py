@@ -27,6 +27,12 @@ def generate_e_waybill(docname, throw=True):
 
 	response = requests.post(url, headers=headers, data=payload)
 	print(sales_obj.irn, response.text)
+	ewbs = response.json()
+	frappe.msgprint(
+    msg='E Waybill  '+ str(ewbs['message'])+str(sales_obj.ewaybill),
+    title='Error'
+
+    ) 
 	# print(response.text)
 #######################################################################################
 ### e-Waybill Data Generation #########################################################
