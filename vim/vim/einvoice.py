@@ -6,6 +6,7 @@ from PIL import Image
 import base64
 from io import BytesIO
 from pydoc import doc
+from datetime import datetime
 @frappe.whitelist()
 def generate_einvoice(docname, throw=True):
   sales_obj = frappe.get_doc('Sales Invoice', docname)
@@ -185,17 +186,17 @@ class EinvoiceData():
     return doctype,seller_dtls,buyer_dtls,item_dtls,Val_Dtls,Ewb_Dtls
   def _Doc_Dtls(self):
      doctype = self.sales_obj.get("DocDtls", {})
-     return{
+     return{"DocDtls":{
        "Typ": "INV",
         "No": self.sales_obj.name,
         "Dt": self.sales_obj.posting_date
-     }
+     }}
     
   def _Seller_Dtls(self):
     address = self.sales_obj.get("SellerDtls", {})
     company_gstin =self.sales_obj.company_gstin
     company_dtls=self.sales_obj.company_address_display.split("<br>")
-    return {
+    return {"SellerDtls":{
         "Gstin": company_gstin,
         "LglNm": self.sales_obj.company,
         "Pos": company_gstin[:2],
@@ -205,12 +206,12 @@ class EinvoiceData():
         "Stcd": company_gstin[:2],
         "Ph": self.sales_obj.contact_mobile,
         "Em": self.sales_obj.contact_email,
-    }
+    }}
   def _Buyer_Dtls(self):
     buyer_address = self.sales_obj.get("BuyerDtls", {})
     buyer_gstin =self.sales_obj.billing_address_gstin
     buyer_dtls=self.sales_obj.address_display.split("<br>")
-    return {
+    return {"BuyerDtls":{
         "Gstin": buyer_gstin,
         "LglNm": self.sales_obj.customer,
         "Pos": buyer_gstin[:2],
@@ -220,7 +221,7 @@ class EinvoiceData():
         "Stcd": buyer_gstin[:2],
         "Ph": self.sales_obj.contact_mobile,
         "Em": self.sales_obj.contact_email,
-    }
+    }}
   def _Item_Dtls(self):
     ItemList =self.sales_obj.get("ItemList",{})
     items=[]
@@ -252,7 +253,7 @@ class EinvoiceData():
     invoice_item['OrgCntry'] = item.item_name
     invoice_item['PrdSlNo'] = item.description
     items.append(invoice_item)
-    return items
+    return {ItemList:items}
   def _Val_Dtls(self):
    ValDtls = self.sales_obj.get("ValDtls",{})
    taxes=[]
@@ -272,7 +273,7 @@ class EinvoiceData():
     return {ValDtls:taxes}
   def _Ewb_Dtls(self):
     EwbDtls= self.sales_obj.get("EwbDtls",{})
-    return{
+    return{"EwbDtls":{
       "Transid": "33AVGPP1380B2ZY",
         "Transname": "SS TRANSPORT",
         "Distance": 90,
@@ -281,7 +282,7 @@ class EinvoiceData():
         "Vehno": "TN21BZ0253",
         "Vehtype": "R",
         "TransMode": "1"
-    }
+    }}
 @frappe.whitelist()
 def get_qrcode(input_str):
   qr = qrcode.make(input_str)
@@ -298,28 +299,17 @@ def cancel_e_invoice(docname,values,throw=True):
   # print(docname)
   values = frappe.parse_json(values)
   validate_if_e_invoice_can_be_cancelled(sales_obj)
-  if sales_obj.get("ewaybill"):
-    _cancel_e_waybill(sales_obj, values)
-  data = {
-  "Irn": sales_obj.irn,
-	"Cnlrsn": [values.reason],
-	"Cnlrem": values.remark if values.remark else values.reason,
-  }
-  sales_obj.einvoice_status= "Generated"
-  sales_obj.save(ignore_permissions=True)
-  frappe.db.commit()
-  result = EInvoiceAPI(sales_obj).cancel_irn(data)
-  doc.db_set({"einvoice_status": "Cancelled", "irn": ""})
-
+#      
 def validate_if_e_invoice_can_be_cancelled(sales_obj):
     if not sales_obj.irn:
         frappe.throw(("IRN not found"), title=("Error Cancelling e-Invoice"))
     # this works because we do run_onload in load_doc above
-    acknowledged_on =  sales_obj.ackdt
+    acknowledged_on = sales_obj.ackdt 
+    now = datetime.today()
     if (
         not acknowledged_on
-        or add_to_date(get_datetime(acknowledged_on), days=1, as_datetime=True)
-        < get_datetime()
+        or (now - acknowledged_on).days
+        > 1
     ):
         frappe.throw(
             ("e-Invoice can only be cancelled upto 24 hours after it is generated")
