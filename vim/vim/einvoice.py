@@ -119,14 +119,14 @@ def generate_einvoice(docname, throw=True):
         "TotInvVal": 68.35
       },
       "EwbDtls": {
-        "Transid": "33AVGPP1380B2ZY",
-        "Transname": "SS TRANSPORT",
+        "Transid": "",
+        "Transname": "",
         "Distance": 90,
-        "Transdocno": "001",
-        "TransdocDt": "26/11/2022",
-        "Vehno": "TN21BZ0253",
-        "Vehtype": "R",
-        "TransMode": "1"
+        "Transdocno": "",
+        "TransdocDt": "",
+        "Vehno": "",
+        "Vehtype": "",
+        "TransMode": ""
       }
       }
     })
@@ -299,7 +299,66 @@ def cancel_e_invoice(docname,values,throw=True):
   # print(docname)
   values = frappe.parse_json(values)
   validate_if_e_invoice_can_be_cancelled(sales_obj)
-#      
+#   cancel_irn()
+# def e_invoice_can_be_cancelled(docname,values,throw=True):
+#     sales_obj = frappe.get_doc('Sales Invoice', docname)
+  #   # doc = load_doc("Sales Invoice", docname, "cancel")
+  # print(docname)
+  if sales_obj.irn and sales_obj.ewaybill :
+     if sales_obj.ewaybill :
+        cancel_ewaybill(sales_obj) 
+        cancel_irn(sales_obj)
+     if not sales_obj.ewaybill and sales_obj.irn:
+      cancel_irn(sales_obj)
+  elif sales_obj.ewaybill : 
+     cancel_ewaybill(sales_obj)
+  elif sales_obj.irn :
+     cancel_irn(sales_obj)
+def cancel_irn(sales_obj):
+    cancels_obj = frappe.get_doc('Sales Invoice',sales_obj.name )
+    url = "http://einvoice2.mazeworkssolutions.com/maze_eserver/public/api/einvoicecancel"
+    payload = json.dumps({
+    "Invoice": {
+    "irn": sales_obj.irn,
+    "cnlrsn": "1",
+    "cnlrem": "wrong entry"
+    }
+    })
+    headers = {
+    'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMTg2MWM4YzRmNjE2MTUxNmQxZjdiYjQ0NmQzM2FmODA1YWMwMjA0MWJhZDY1NmU5NjBiNzEwZjllYjE0Y2U3MWVlNDM3YWZjMTBkMTBjMGIiLCJpYXQiOjE2NjkzODc0OTUuMTkyNDA2LCJuYmYiOjE2NjkzODc0OTUuMTkyNDA4LCJleHAiOjE3MDA5MjM0OTUuMTg0OTgsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.LBuPsvSwCqARlaaMgsLiOuFMZ-9YTMbOFZTHpDVxh8UBRihYgh3ClIRYglTKBp6MXYEb-1gKSeqU8V_sAnAFf5kCdIu07vVZgRO20Sk0SfnNlib843A7HfySem2vCr_ncGmEr5V4h8j7hE9sRyRAmei8ri1j5RB95B2kF9UG0bqa3lcxcVT9UMxBGHIKm2Vkaod_wwiXlzNyKlaa31yAyt9W7zWzsiFin5b892TQwh8wPYh5x6_fMLy--7S4HoJB8oYr3VWoJfcBnifO409NjQ_5PDrbV1BQ37Wj03Z-VNDueH0JmYrZ7zeu0C2vc9HSrysHpfaD9VSADfhROehN0o0sKJR7l5mXs-Sv3CobeRkLHZev1hu9fFR8fYXGmRy6hbBcbBox8bPbBtaLSHuv_ug8OHunWO9VFpGRdJaM9uOYQ5yqxZFyOpXQYr4w0oV5gOn0HGvjdT9bBLMb0i6OJUO9iMqFJ8peJY23B3TL0uRUkK8WGviwzoNlLFSk165M5YQ-PuVcm0BunoZ5sjkWp1tFLGDkXgB9BxU5dsr3B51VtxxFmd15Kcmv8DRfN9h0kvz0FVHO4KVqRI1OHtDudnE7mWQWaGj6YYPk7RO5uecN3zb2njcqEPhxnw_6CL-fqZGToZ-KRnKxNcoHjql2l2wSQSQEI_DyusrhyvOFcYI',
+    'Content-Type': 'application/json'
+    }
+    response = requests.post(url, headers=headers, data=payload)
+    print(sales_obj.irn, response.text)
+    ewbs = response.json()
+    frappe.msgprint(
+    msg='E Waybill  '+ str(ewbs['message'])+str(sales_obj.ewaybill),
+    title='Error'
+    ) 
+    return
+def cancel_ewaybill(sales_obj):
+    url = "http://einvoice.mazeworkssolutions.com/maze_eserver/public/api/ewaybillcancel"
+    payload = json.dumps({
+  "Invoice": {
+    "ewbNo": sales_obj.ewaybill,
+    "cancelRsnCode": 2,
+    "cancelRmrk": "Cancelled the order"
+    }
+    })
+    headers = {
+		'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMTg2MWM4YzRmNjE2MTUxNmQxZjdiYjQ0NmQzM2FmODA1YWMwMjA0MWJhZDY1NmU5NjBiNzEwZjllYjE0Y2U3MWVlNDM3YWZjMTBkMTBjMGIiLCJpYXQiOjE2NjkzODc0OTUuMTkyNDA2LCJuYmYiOjE2NjkzODc0OTUuMTkyNDA4LCJleHAiOjE3MDA5MjM0OTUuMTg0OTgsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.LBuPsvSwCqARlaaMgsLiOuFMZ-9YTMbOFZTHpDVxh8UBRihYgh3ClIRYglTKBp6MXYEb-1gKSeqU8V_sAnAFf5kCdIu07vVZgRO20Sk0SfnNlib843A7HfySem2vCr_ncGmEr5V4h8j7hE9sRyRAmei8ri1j5RB95B2kF9UG0bqa3lcxcVT9UMxBGHIKm2Vkaod_wwiXlzNyKlaa31yAyt9W7zWzsiFin5b892TQwh8wPYh5x6_fMLy--7S4HoJB8oYr3VWoJfcBnifO409NjQ_5PDrbV1BQ37Wj03Z-VNDueH0JmYrZ7zeu0C2vc9HSrysHpfaD9VSADfhROehN0o0sKJR7l5mXs-Sv3CobeRkLHZev1hu9fFR8fYXGmRy6hbBcbBox8bPbBtaLSHuv_ug8OHunWO9VFpGRdJaM9uOYQ5yqxZFyOpXQYr4w0oV5gOn0HGvjdT9bBLMb0i6OJUO9iMqFJ8peJY23B3TL0uRUkK8WGviwzoNlLFSk165M5YQ-PuVcm0BunoZ5sjkWp1tFLGDkXgB9BxU5dsr3B51VtxxFmd15Kcmv8DRfN9h0kvz0FVHO4KVqRI1OHtDudnE7mWQWaGj6YYPk7RO5uecN3zb2njcqEPhxnw_6CL-fqZGToZ-KRnKxNcoHjql2l2wSQSQEI_DyusrhyvOFcYI',
+		'Content-Type': 'application/json'
+	  }
+
+    response = requests.post(url, headers=headers, data=payload)
+    print(sales_obj.irn, response.text)
+    ewbs = response.json()
+    frappe.msgprint(
+    msg='E Waybill  '+ str(ewbs['message'])+str(sales_obj.ewaybill),
+    title='Error'
+
+    ) 
+    return
 def validate_if_e_invoice_can_be_cancelled(sales_obj):
     if not sales_obj.irn:
         frappe.throw(("IRN not found"), title=("Error Cancelling e-Invoice"))

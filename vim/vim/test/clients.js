@@ -3,6 +3,7 @@ frappe.ui.form.on('Sales Invoice', {
 		// your code here
 	
 		
+		
 		if (cur_frm.doc.irn && cur_frm.doc.name){
 			frm.add_custom_button(__('Generate E-Way Bill'), function(){
        frappe.call({
@@ -40,6 +41,7 @@ frappe.ui.form.on('Sales Invoice', {
             .diff() > 0
         );
     }
+
     function show_cancel_e_invoice_dialog(frm, callback) {
         const d = new frappe.ui.Dialog({
         title: frm.doc.ewaybill
