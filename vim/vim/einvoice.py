@@ -119,14 +119,14 @@ def generate_einvoice(docname, throw=True):
         "TotInvVal": 68.35
       },
       "EwbDtls": {
-        "Transid": "",
-        "Transname": "",
-        "Distance": 90,
-        "Transdocno": "",
-        "TransdocDt": "",
-        "Vehno": "",
-        "Vehtype": "",
-        "TransMode": ""
+       "Transid": "33AVGPP1380B2ZY",
+       "Transname": "SS TRANSPORT",
+        "Distance": 10,
+        "Transdocno": "001",
+        "TransdocDt": "26/11/2022",
+        "Vehno": "TN21BZ0253",
+        "Vehtype": "R",
+        "TransMode": "1"
       }
       }
     })
